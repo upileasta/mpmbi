@@ -1,11 +1,10 @@
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { 
   Users, 
   MessageSquare, 
   FileText, 
-  LogOut, 
   Clock, 
   CheckCircle, 
   XCircle, 
@@ -13,11 +12,9 @@ import {
   Phone, 
   Calendar,
   Building,
-  User,
-  Shield,
-  Layers
+  Shield
 } from "lucide-react";
-import Link from "next/link";
+import { MemberApplication, ContactMessage } from "@prisma/client";
 
 export default async function AdminDashboard() {
   const session = await auth();
@@ -26,9 +23,8 @@ export default async function AdminDashboard() {
     redirect("/admin-portal-page");
   }
 
-  let applications: any[] = [];
-  let messages: any[] = [];
-  let posts: any[] = [];
+  let applications: MemberApplication[] = [];
+  let messages: ContactMessage[] = [];
   let stats = { appsCount: 0, msgsCount: 0, postsCount: 0 };
   let dbError: string | null = null;
 
@@ -36,7 +32,6 @@ export default async function AdminDashboard() {
     const [
       appsData,
       msgsData,
-      postsData,
       counts
     ] = await Promise.all([
       db.memberApplication.findMany({
@@ -44,10 +39,6 @@ export default async function AdminDashboard() {
         take: 5
       }),
       db.contactMessage.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 5
-      }),
-      db.post.findMany({
         orderBy: { createdAt: "desc" },
         take: 5
       }),
@@ -64,9 +55,8 @@ export default async function AdminDashboard() {
 
     applications = appsData;
     messages = msgsData;
-    posts = postsData;
     stats = counts;
-  } catch (error: any) {
+  } catch (error) {
     console.error("Database fetch error in admin page:", error);
     dbError = error.message || "Failed to connect to the database.";
   }
@@ -173,7 +163,7 @@ export default async function AdminDashboard() {
                   No applications found.
                 </div>
               ) : (
-                applications.map((app: any) => (
+                applications.map((app) => (
                   <div key={app.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
@@ -209,7 +199,7 @@ export default async function AdminDashboard() {
                   No contact messages found.
                 </div>
               ) : (
-                messages.map((msg: any) => (
+                messages.map((msg) => (
                   <div key={msg.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all space-y-2">
                     <div className="flex justify-between items-start">
                       <div>
@@ -221,7 +211,7 @@ export default async function AdminDashboard() {
                     </div>
                     <p className="text-xs font-extrabold text-slate-700 bg-white px-3 py-1.5 rounded-lg border border-slate-100 inline-block">{msg.subject}</p>
                     <p className="text-sm text-slate-600 leading-relaxed italic line-clamp-2 bg-white/40 p-2.5 rounded-xl border border-slate-100/30">
-                      "{msg.message}"
+                      &quot;{msg.message}&quot;
                     </p>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 font-semibold pt-1">
                       <span className="flex items-center gap-1"><Mail size={12} /> {msg.email}</span>

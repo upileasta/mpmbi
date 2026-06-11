@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus, Edit, Trash2, ArrowLeft } from "lucide-react";
@@ -24,7 +25,7 @@ export default async function AdminPostsPage({
   const sortColumn = (resolvedSearchParams.sort as string) || "createdAt";
   const sortOrder = (resolvedSearchParams.order as "asc" | "desc") || "desc";
 
-  const whereClause: any = query ? {
+  const whereClause: Prisma.PostWhereInput = query ? {
     OR: [
       { title: { contains: query, mode: "insensitive" } }
     ]

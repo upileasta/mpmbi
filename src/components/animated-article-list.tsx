@@ -31,7 +31,7 @@ const getCategoryConfig = (category: string) => {
   return { color: "bg-slate-100 text-slate-700 border-slate-200", icon: Tag };
 };
 
-export function AnimatedArticleList({ articles, basePath = "/artikel" }: { articles: any[], basePath?: string }) {
+export function AnimatedArticleList({ articles, basePath = "/artikel" }: { articles: { id: string; category: string; slug: string; imageUrl?: string | null; title: string; excerpt?: string | null }[], basePath?: string }) {
   if (articles.length === 0) {
     return (
       <div className="text-center py-20 bg-slate-50 rounded-3xl border border-slate-100">
@@ -57,6 +57,7 @@ export function AnimatedArticleList({ articles, basePath = "/artikel" }: { artic
             <Link href={`${basePath}/${article.slug}`} className="block relative">
               <div className="aspect-[16/10] rounded-[2rem] overflow-hidden mb-6 relative bg-slate-100 shadow-sm border border-slate-100/50">
                 {article.imageUrl ? (
+
                 <img 
                   src={article.imageUrl} 
                   alt={article.title} 

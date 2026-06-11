@@ -2,6 +2,8 @@ import { Navbar } from "@/components/navbar";
 import { PageHero } from "@/components/page-hero";
 import { AnimatedArticleList } from "@/components/animated-article-list";
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
+import Link from "next/link";
 
 const categories = [
   "INSIGHT",
@@ -22,7 +24,7 @@ export default async function ArtikelPage({
   const resolvedSearchParams = await searchParams;
   const categoryFilter = resolvedSearchParams.cat as string | undefined;
 
-  const whereClause: any = { published: true, type: "BLOG" };
+  const whereClause: Prisma.PostWhereInput = { published: true, type: "BLOG" };
   
   if (categoryFilter && categories.includes(categoryFilter.toUpperCase())) {
     whereClause.category = categoryFilter.toUpperCase();
@@ -47,11 +49,11 @@ export default async function ArtikelPage({
       <section className="py-6 border-b border-slate-100 sticky top-20 bg-white/80 backdrop-blur-md z-40 overflow-x-auto">
         <div className="container mx-auto px-4">
           <div className="flex gap-4 min-w-max pb-2">
-            <a href="/artikel" className="px-4 py-2 bg-primary text-white rounded-full text-xs font-bold transition-all shadow-md">Semua</a>
+            <Link href="/artikel" className="px-4 py-2 bg-primary text-white rounded-full text-xs font-bold transition-all shadow-md">Semua</Link>
             {categories.map((c, i) => (
-              <a href={`/artikel?cat=${c}`} key={i} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-100 hover:text-primary transition-all border border-slate-200">
+              <Link href={`/artikel?cat=${c}`} key={i} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-100 hover:text-primary transition-all border border-slate-200">
                 {c}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

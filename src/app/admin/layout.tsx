@@ -1,8 +1,6 @@
 import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
 import {
-  Layers,
-  FileText,
   User,
   Shield,
   LogOut
@@ -47,7 +45,7 @@ export default async function AdminLayout({
               <p className="font-bold text-sm text-slate-200 truncate">{session.user.name || "Administrator"}</p>
               <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                 <Shield size={10} />
-                <span>{(session.user as any).role || "ADMIN"}</span>
+                <span>{(session.user as { role?: string }).role || "ADMIN"}</span>
               </div>
             </div>
           </div>

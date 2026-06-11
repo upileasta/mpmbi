@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { CheckCircle, Clock, XCircle, Mail, Phone } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { Search } from "@/components/datatable/search";
@@ -32,7 +33,7 @@ export default async function AdminMembersPage({
   const sortOrder = (resolvedSearchParams.order as "asc" | "desc") || "desc";
 
   // Build the where clause
-  const whereClause: any = {
+  const whereClause: Prisma.MemberApplicationWhereInput = {
     ...(statusFilter ? { status: statusFilter } : {}),
     ...(query ? {
       OR: [

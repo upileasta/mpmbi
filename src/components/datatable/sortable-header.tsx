@@ -6,7 +6,7 @@ interface SortableHeaderProps {
   column: string;
   currentSort: string;
   currentOrder: "asc" | "desc" | "";
-  searchParams: any;
+  searchParams: Record<string, string | string[] | undefined>;
 }
 
 export function SortableHeader({

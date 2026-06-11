@@ -5,7 +5,7 @@ import { submitRegistration } from "@/app/actions/member";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
 
 export function RegistrationForm() {
-  const [state, action, isPending] = useActionState(async (prevState: any, formData: FormData) => {
+  const [state, action, isPending] = useActionState(async (prevState: unknown, formData: FormData) => {
     return await submitRegistration(formData);
   }, null);
 

@@ -69,13 +69,11 @@ async function main() {
       const title = $('h2').first().text().trim();
       if (!title) continue;
 
-      let categoryStr = '';
       let excerpt = '';
       
       $('table').first().find('tr').each((idx, tr) => {
         const key = $(tr).find('td').eq(0).text().trim().toLowerCase();
         const val = $(tr).find('td').eq(1).text().trim();
-        if (key.includes('kategori')) categoryStr = val;
         if (key.includes('ringkasan')) excerpt = val;
       });
 
@@ -128,12 +126,7 @@ async function main() {
       const title = $('h1').first().next('p').text().trim();
       if (!title) continue;
 
-      let categoryStr = '';
-      $('table').first().find('tr').each((idx, tr) => {
-        const key = $(tr).find('td').eq(0).text().trim().toLowerCase();
-        const val = $(tr).find('td').eq(1).text().trim();
-        if (key.includes('kategori')) categoryStr = val;
-      });
+
 
       const contentNodes: string[] = [];
       let startRecording = false;
@@ -154,7 +147,7 @@ async function main() {
 
       const content = contentNodes.join('').trim();
       
-      let excerpt = cheerio.load(content).text().substring(0, 150) + '...';
+      const excerpt = cheerio.load(content).text().substring(0, 150) + '...';
 
       await prisma.post.upsert({
         where: { slug: generateSlug(title) },

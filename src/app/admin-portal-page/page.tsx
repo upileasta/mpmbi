@@ -31,7 +31,7 @@ export default function LoginPage() {
       } else {
         router.push("/admin");
       }
-    } catch (err) {
+    } catch {
       setError("Terjadi kesalahan teknis.");
     } finally {
       setLoading(false);

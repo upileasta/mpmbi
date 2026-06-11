@@ -1,10 +1,11 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
-export async function createPost(data: any) {
+export async function createPost(data: Prisma.PostUncheckedCreateInput) {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
 
@@ -27,7 +28,7 @@ export async function createPost(data: any) {
   return { success: true, post };
 }
 
-export async function updatePost(id: string, data: any) {
+export async function updatePost(id: string, data: Prisma.PostUncheckedUpdateInput) {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
 

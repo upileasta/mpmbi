@@ -22,7 +22,19 @@ const CATEGORIES = [
 
 const TYPES = ["BLOG", "NEWS", "PUBLICATION"];
 
-export function PostForm({ initialData }: { initialData?: any }) {
+interface PostData {
+  id?: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  type: string;
+  category: string;
+  published: boolean;
+  imageUrl: string;
+}
+
+export function PostForm({ initialData }: { initialData?: PostData }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -93,8 +105,8 @@ export function PostForm({ initialData }: { initialData?: any }) {
       }
       router.push("/admin/posts");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
+    } catch (err: unknown) {
+      setError((err as Error).message || "Something went wrong.");
       setLoading(false);
     }
   };
@@ -194,6 +206,7 @@ export function PostForm({ initialData }: { initialData?: any }) {
           </div>
           {formData.imageUrl && (
             <div className="mt-4 w-40 h-24 rounded-lg overflow-hidden border border-slate-200 bg-slate-100">
+
               <img src={formData.imageUrl} alt="Cover Preview" className="w-full h-full object-cover" />
             </div>
           )}
