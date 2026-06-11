@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@plugin "@tailwindcss/typography";
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -10,6 +10,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-primary: #0572BB;
+  --color-primary-foreground: #ffffff;
+  
+  --color-secondary: #1A7C47;
+  --color-secondary-foreground: #ffffff;
+  
+  --color-accent: #f8fafc; /* Use a very light gray instead of green for accents */
+  --color-accent-foreground: #0572BB;
 }
 
 @media (prefers-color-scheme: dark) {
