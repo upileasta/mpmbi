@@ -61,7 +61,7 @@ export function Footer() {
             <ul className="space-y-4 text-sm">
               <li className="flex gap-3">
                 <MapPin size={18} className="text-secondary shrink-0" />
-                <span className="text-slate-400 leading-snug">[Alamat Sekretariat MPMBI]</span>
+                <span className="text-slate-400 leading-snug">Grand Slipi Tower, level 42 Unit G-H Jl. S Parman Kav 22-24, RT. 01 RW. 04 Kel. Palmerah Kec. Palmerah Jakarta Barat 11480</span>
               </li>
               <li className="flex gap-3 items-center">
                 <Mail size={18} className="text-secondary shrink-0" />
@@ -69,7 +69,7 @@ export function Footer() {
               </li>
               <li className="flex gap-3 items-center">
                 <Phone size={18} className="text-secondary shrink-0" />
-                <span className="text-slate-400">[Nomor WhatsApp Admin]</span>
+                <span className="text-slate-400">+62 813-8099-3100</span>
               </li>
             </ul>
           </div>
