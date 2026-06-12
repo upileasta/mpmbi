@@ -182,10 +182,9 @@ jobs:
             "echo 'SSH connection successful'"
 
       - name: Upload docker-compose.prod.yml to VPS
-        env:
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          # Ignore DEPLOY_PATH secret to avoid permission errors
         run: |
-          APP_DIR="${DEPLOY_PATH:-mpmbi}"
+          APP_DIR="mpmbi"
 
           ssh -p ${{ secrets.SSH_PORT || '22' }} -i ~/.ssh/id_rsa \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
@@ -204,21 +203,20 @@ jobs:
           BUILD_TIME: ${{ needs.build.outputs.build_time }}
           IMAGE_TAG: ${{ needs.build.outputs.git_sha_short }}
           APP_VERSION: ${{ needs.build.outputs.version }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           GITHUB_REPOSITORY_LOWER: ${{ env.GITHUB_REPOSITORY_LOWER }}
         run: |
           ssh -p ${{ secrets.SSH_PORT || '22' }} -i ~/.ssh/id_rsa \
             -o "ServerAliveInterval=60" \
             -o "ServerAliveCountMax=30" \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "IMAGE_TAG='${IMAGE_TAG}' GIT_SHA='${GIT_SHA}' BUILD_TIME='${BUILD_TIME}' APP_VERSION='${APP_VERSION}' DEPLOY_PATH='${DEPLOY_PATH}' GITHUB_REPOSITORY_LOWER='${GITHUB_REPOSITORY_LOWER}' GITHUB_TOKEN='${{ secrets.GITHUB_TOKEN }}' github_actor='${{ github.actor }}' bash -s" << 'ENDSSH'
+            "IMAGE_TAG='${IMAGE_TAG}' GIT_SHA='${GIT_SHA}' BUILD_TIME='${BUILD_TIME}' APP_VERSION='${APP_VERSION}' GITHUB_REPOSITORY_LOWER='${GITHUB_REPOSITORY_LOWER}' GITHUB_TOKEN='${{ secrets.GITHUB_TOKEN }}' github_actor='${{ github.actor }}' bash -s" << 'ENDSSH'
             set -e
 
             echo "=============================================="
             echo "Starting MPMBI Deployment"
             echo "=============================================="
 
-            APP_DIR="${DEPLOY_PATH:-mpmbi}"
+            APP_DIR="mpmbi"
             echo "Application directory: $APP_DIR"
             cd "$APP_DIR" || exit 1
 
