@@ -20,7 +20,7 @@ services:
     image: ghcr.io/${GITHUB_REPOSITORY_LOWER:-upileasta/mpmbi}:${IMAGE_TAG:-latest}
     restart: always
     ports:
-      - "3000:3000"
+      - "3011:3000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-mpmbi_user}:${POSTGRES_PASSWORD:-mpmbi_password}@db:5432/${POSTGRES_DB:-mpmbi_db}?schema=public
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-}
