@@ -185,7 +185,7 @@ jobs:
         env:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          APP_DIR="${DEPLOY_PATH:-/home/rvllfil/mpmbi}"
+          APP_DIR="${DEPLOY_PATH:-mpmbi}"
 
           ssh -p ${{ secrets.SSH_PORT || '22' }} -i ~/.ssh/id_rsa \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
@@ -218,7 +218,7 @@ jobs:
             echo "Starting MPMBI Deployment"
             echo "=============================================="
 
-            APP_DIR="${DEPLOY_PATH:-/home/rvllfil/mpmbi}"
+            APP_DIR="${DEPLOY_PATH:-mpmbi}"
             echo "Application directory: $APP_DIR"
             cd "$APP_DIR" || exit 1
 
