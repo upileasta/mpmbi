@@ -74,30 +74,30 @@ export default function PublikasiPage() {
         </div>
       </section>
 
-      {/* Featured News / Research Articles */}
+      {/* Featured Blog Articles */}
       <section className="py-24 bg-slate-50 border-y border-slate-100">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-extrabold mb-12 text-slate-900">Publikasi Terbaru</h2>
           <div className="grid lg:grid-cols-2 gap-10">
             {[
               {
-                title: "Nusa Putra University dan Eastasouth Institute Perkuat Kolaborasi Publikasi Ilmiah",
-                cat: "Kerja Sama",
+                title: "Membangun Strategi Pemasaran Digital yang Efektif di Era Web 3.0",
+                cat: "Blog",
                 date: "2026",
               },
               {
-                title: "Sustainability Management sebagai Kompetensi Baru Profesional Bisnis",
-                cat: "Insight",
+                title: "Pentingnya Kepemimpinan Transformasional dalam Menghadapi Perubahan Pasar",
+                cat: "Blog",
                 date: "2026",
               },
-            ].map((news, i) => (
+            ].map((post, i) => (
               <div key={i} className="bg-white p-8 rounded-3xl flex flex-col sm:flex-row gap-8 items-center border border-slate-200">
                 <div className="w-full sm:w-40 h-40 bg-slate-100 rounded-2xl shrink-0 overflow-hidden">
                   <img src={`https://images.unsplash.com/photo-${i === 0 ? '1557804506-669a67965ba0' : '1551836022-d5d8b5c82fdd'}?auto=format&fit=crop&q=80&w=400`} alt="Article" className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-secondary uppercase tracking-widest">{news.cat} • {news.date}</span>
-                  <h4 className="text-xl font-bold text-slate-900 mt-2 mb-4 leading-snug">{news.title}</h4>
+                  <span className="text-xs font-bold text-secondary uppercase tracking-widest">{post.cat} • {post.date}</span>
+                  <h4 className="text-xl font-bold text-slate-900 mt-2 mb-4 leading-snug">{post.title}</h4>
                   <button className="text-primary font-bold text-sm">Baca Publikasi</button>
                 </div>
               </div>
