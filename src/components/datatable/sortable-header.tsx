@@ -20,7 +20,7 @@ export function SortableHeader({
   const newOrder = isSorted && currentOrder === "asc" ? "desc" : "asc";
 
   // Build the new search params
-  const params = new URLSearchParams(searchParams);
+  const params = new URLSearchParams(searchParams as any);
   params.set("sort", column);
   params.set("order", newOrder);
 

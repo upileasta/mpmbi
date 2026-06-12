@@ -58,7 +58,7 @@ export default async function AdminDashboard() {
     stats = counts;
   } catch (error) {
     console.error("Database fetch error in admin page:", error);
-    dbError = error.message || "Failed to connect to the database.";
+    dbError = error instanceof Error ? error.message : "Failed to connect to the database.";
   }
 
   const getStatusBadge = (status: string) => {

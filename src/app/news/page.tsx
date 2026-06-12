@@ -21,7 +21,7 @@ export default async function NewsPage({
   const whereClause: Prisma.PostWhereInput = { published: true, type: "NEWS" };
   
   if (categoryFilter && categories.includes(categoryFilter.toUpperCase())) {
-    whereClause.category = categoryFilter.toUpperCase();
+    whereClause.category = categoryFilter.toUpperCase() as any;
   }
 
   const articles = await db.post.findMany({

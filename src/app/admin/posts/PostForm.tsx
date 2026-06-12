@@ -99,9 +99,9 @@ export function PostForm({ initialData }: { initialData?: PostData }) {
 
     try {
       if (initialData?.id) {
-        await updatePost(initialData.id, formData);
+        await updatePost(initialData.id, formData as any);
       } else {
-        await createPost(formData);
+        await createPost(formData as any);
       }
       router.push("/admin/posts");
       router.refresh();

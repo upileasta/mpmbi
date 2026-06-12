@@ -70,11 +70,13 @@ async function main() {
       if (!title) continue;
 
       let excerpt = '';
+      let categoryStr = '';
       
       $('table').first().find('tr').each((idx, tr) => {
         const key = $(tr).find('td').eq(0).text().trim().toLowerCase();
         const val = $(tr).find('td').eq(1).text().trim();
         if (key.includes('ringkasan')) excerpt = val;
+        if (key.includes('kategori')) categoryStr = val;
       });
 
       // Extract content

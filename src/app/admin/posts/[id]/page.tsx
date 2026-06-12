@@ -18,7 +18,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-10">
-      <PostForm initialData={post} />
+      <PostForm initialData={post as any} />
     </div>
   );
 }

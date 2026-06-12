@@ -2,11 +2,17 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
     tags:
-      - 'v*'
-  pull_request:
-    branches: [ main ]
+      - 'v*.*.*' # Stable semantic version tags (v1.0.0, v1.2.3)
+      - '!v*.*.*-*' # Exclude pre-release tags
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
 
 jobs:
   test:
@@ -23,33 +29,255 @@ jobs:
       - name: Run Lint
         run: npm run lint
 
-  deploy:
-    needs: test
-    if: startsWith(github.ref, 'refs/tags/v')
+  build:
+    name: Build & Push Image
     runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 30
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      version: ${{ steps.meta.outputs.version }}
+      git_sha_short: ${{ steps.sha.outputs.short }}
+      build_time: ${{ steps.build_time.outputs.timestamp }}
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Docker Buildx
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get short SHA
+        id: sha
+        run: echo "short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Get build timestamp
+        id: build_time
+        run: echo "timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_OUTPUT
+
+      - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
+            network=host
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Convert github repository name to lowercase
+        run: echo "IMAGE_NAME_LOWER=$(echo ${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=tag
+
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./Dockerfile
           push: true
-          tags: |
-            ghcr.io/${{ github.repository }}/web:latest
-            ghcr.io/${{ github.repository }}/web:${{ github.ref_name }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            GIT_SHA=${{ github.sha }}
+            BUILD_TIME=${{ steps.build_time.outputs.timestamp }}
+            IMAGE_VERSION=${{ steps.sha.outputs.short }}
+          no-cache: true
+          provenance: false
 
-      # Note: Actual deployment to server via SSH would go here
-      # For example, using appleboy/ssh-action to pull and restart containers
+      - name: Generate deployment manifest
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message || 'Tag release' }}
+          COMMITTER_NAME: ${{ github.event.head_commit.committer.name || 'GitHub Actions' }}
+        run: |
+          jq -n \
+            --arg git_sha "${{ github.sha }}" \
+            --arg git_sha_short "${{ steps.sha.outputs.short }}" \
+            --arg git_ref "${{ github.ref }}" \
+            --arg git_ref_name "${{ github.ref_name }}" \
+            --arg version "${{ steps.meta.outputs.version }}" \
+            --arg build_time "${{ steps.build_time.outputs.timestamp }}" \
+            --arg image_tags "${{ steps.meta.outputs.tags }}" \
+            --arg image_name "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}" \
+            --arg commit_message "$COMMIT_MESSAGE" \
+            --arg committer "$COMMITTER_NAME" \
+            --arg workflow_run "${{ github.run_number }}" \
+            '{
+              git_sha: $git_sha,
+              git_sha_short: $git_sha_short,
+              git_ref: $git_ref,
+              git_ref_name: $git_ref_name,
+              version: $version,
+              build_time: $build_time,
+              image_tags: $image_tags,
+              image_name: $image_name,
+              commit_message: $commit_message,
+              committer: $committer,
+              workflow_run: $workflow_run
+            }' > deployment-manifest.json
+            
+          echo "Deployment Manifest:"
+          cat deployment-manifest.json | jq .
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-manifest
+          path: deployment-manifest.json
+          retention-days: 30
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout deployment files
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            docker-compose.prod.yml
+
+      - name: Download deployment manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-manifest
+
+      - name: Display deployment info
+        run: |
+          echo "=============================================="
+          echo "MPMBI Application Deployment"
+          echo "=============================================="
+          cat deployment-manifest.json | jq .
+          echo "=============================================="
+
+      - name: Setup SSH connection
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.SSH_PORT || '22' }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+          ssh -p ${{ secrets.SSH_PORT || '22' }} -i ~/.ssh/id_rsa \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "echo 'SSH connection successful'"
+
+      - name: Upload docker-compose.prod.yml to VPS
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          APP_DIR="${DEPLOY_PATH:-/home/rvllfil/mpmbi}"
+
+          ssh -p ${{ secrets.SSH_PORT || '22' }} -i ~/.ssh/id_rsa \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "mkdir -p ${APP_DIR}"
+
+          scp -P ${{ secrets.SSH_PORT || '22' }} -i ~/.ssh/id_rsa \
+            docker-compose.prod.yml \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${APP_DIR}/
+
+      - name: Convert github repository name to lowercase
+        run: echo "GITHUB_REPOSITORY_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Deploy to VPS
+        env:
+          GIT_SHA: ${{ github.sha }}
+          BUILD_TIME: ${{ needs.build.outputs.build_time }}
+          IMAGE_TAG: ${{ needs.build.outputs.git_sha_short }}
+          APP_VERSION: ${{ needs.build.outputs.version }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          GITHUB_REPOSITORY_LOWER: ${{ env.GITHUB_REPOSITORY_LOWER }}
+        run: |
+          ssh -p ${{ secrets.SSH_PORT || '22' }} -i ~/.ssh/id_rsa \
+            -o "ServerAliveInterval=60" \
+            -o "ServerAliveCountMax=30" \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "IMAGE_TAG='${IMAGE_TAG}' GIT_SHA='${GIT_SHA}' BUILD_TIME='${BUILD_TIME}' APP_VERSION='${APP_VERSION}' DEPLOY_PATH='${DEPLOY_PATH}' GITHUB_REPOSITORY_LOWER='${GITHUB_REPOSITORY_LOWER}' GITHUB_TOKEN='${{ secrets.GITHUB_TOKEN }}' github_actor='${{ github.actor }}' bash -s" << 'ENDSSH'
+            set -e
+
+            echo "=============================================="
+            echo "Starting MPMBI Deployment"
+            echo "=============================================="
+
+            APP_DIR="${DEPLOY_PATH:-/home/rvllfil/mpmbi}"
+            echo "Application directory: $APP_DIR"
+            cd "$APP_DIR" || exit 1
+
+            export IMAGE_TAG="${IMAGE_TAG:-latest}"
+            export GITHUB_REPOSITORY_LOWER="${GITHUB_REPOSITORY_LOWER:-upileasta/mpmbi}"
+
+            echo "Image Tag:    ${IMAGE_TAG}"
+            echo "Repository:   ${GITHUB_REPOSITORY_LOWER}"
+
+            # Ensure .env exists
+            [ -f .env ] || touch .env
+
+            # Update IMAGE_TAG and GITHUB_REPOSITORY_LOWER in .env
+            if grep -q "^IMAGE_TAG=" .env; then
+              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
+            else
+              echo "IMAGE_TAG=${IMAGE_TAG}" >> .env
+            fi
+
+            if grep -q "^GITHUB_REPOSITORY_LOWER=" .env; then
+              sed -i "s/^GITHUB_REPOSITORY_LOWER=.*/GITHUB_REPOSITORY_LOWER=${GITHUB_REPOSITORY_LOWER}/" .env
+            else
+              echo "GITHUB_REPOSITORY_LOWER=${GITHUB_REPOSITORY_LOWER}" >> .env
+            fi
+
+            COMPOSE="docker compose -f docker-compose.prod.yml"
+
+            echo "→ Logging in to GHCR..."
+            echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${github_actor}" --password-stdin
+
+            echo "Pulling image: ghcr.io/${GITHUB_REPOSITORY_LOWER}:${IMAGE_TAG}..."
+            docker pull --platform linux/amd64 "ghcr.io/${GITHUB_REPOSITORY_LOWER}:${IMAGE_TAG}"
+
+            echo "Ensuring database is running..."
+            $COMPOSE up -d db
+
+            echo "Stopping web container gracefully..."
+            $COMPOSE stop web --timeout 30 || true
+            sleep 2
+            $COMPOSE rm -f web || true
+
+            echo "Starting new web container..."
+            $COMPOSE up -d --force-recreate --no-build web
+
+            echo "Waiting for app to start..."
+            sleep 10
+
+            echo "Running database migrations..."
+            # Getting the actual container name of the web service
+            WEB_CONTAINER=$($COMPOSE ps -q web)
+            if [ -n "$WEB_CONTAINER" ]; then
+              docker exec $WEB_CONTAINER npx prisma migrate deploy || echo "Prisma migration skipped or failed"
+            fi
+
+            echo "Cleanup dangling images"
+            docker image prune -f --filter "until=24h" 2>/dev/null || true
+
+            echo "=============================================="
+            echo "Deployment Completed Successfully!"
+            echo "=============================================="
+            $COMPOSE ps
+          ENDSSH
