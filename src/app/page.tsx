@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white selection:bg-primary selection:text-white">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-10 pb-16 lg:pt-20 lg:pb-24">
         <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -z-10" />
@@ -17,7 +17,7 @@ export default function Home() {
 
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center gap-16">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
@@ -47,25 +47,25 @@ export default function Home() {
               </div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 0.4 }}
               className="flex-1 relative"
             >
-              <motion.div 
+              <motion.div
                 animate={{ y: [0, -20, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                 className="relative z-10 rounded-3xl overflow-hidden shadow-2xl shadow-primary/20 border-8 border-white"
               >
-                <img 
-                  src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=1200" 
+                <img
+                  src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=1200"
                   alt="Association Networking Meeting"
                   className="w-full h-auto object-cover aspect-[4/3]"
                 />
               </motion.div>
               {/* Decorative Card 1 */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.8 }}
@@ -82,7 +82,7 @@ export default function Home() {
                 </div>
               </motion.div>
               {/* Decorative Card 2 */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 1 }}
@@ -104,16 +104,44 @@ export default function Home() {
       </section>
 
       {/* Stats/Logo Section (Collaborators) */}
-      <section className="py-12 border-y border-slate-100 bg-slate-50/50">
+      <section className="py-12 border-y border-slate-100 bg-slate-50/50 overflow-hidden">
         <div className="container mx-auto px-4">
           <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest mb-10">
             Kolaborator Strategis & Mitra
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-12 lg:gap-24">
-            <img src="/nusaputra.png" alt="Nusa Putra University" className="h-16 w-auto grayscale hover:grayscale-0 transition-all duration-300" />
-            <img src="/eastasouth.png" alt="Eastasouth Institute" className="h-16 w-auto grayscale hover:grayscale-0 transition-all duration-300" />
-            <img src="/westscience.png" alt="West Science Press" className="h-16 w-auto grayscale hover:grayscale-0 transition-all duration-300" />
-            <img src="/magester.png" alt="Magister Manajemen" className="h-16 w-auto grayscale hover:grayscale-0 transition-all duration-300" />
+          <div className="relative flex overflow-hidden pt-16 pb-8">
+            <motion.div
+              className="flex items-center min-w-max"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 35 }}
+            >
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex items-center gap-12 lg:gap-24 pr-12 lg:pr-24">
+                  {[
+                    { src: "/eastasouth.png", alt: "Eastasouth Institute" },
+                    { src: "/westscience.png", alt: "West Science Press" },
+                    { src: "/nusaputra.png", alt: "Nusa Putra University" },
+                    { src: "/upj.png", alt: "Universitas Pembangunan Jaya" },
+                    { src: "/ipwija.png", alt: "Universitas IPWIJA" },
+                    { src: "/ubmg.png", alt: "Universitas Bina Mandiri Gorontalo" },
+                    { src: "/sties-gasantra.png", alt: "STIES Gasantra" },
+                    { src: "/stai-alandina.png", alt: "STAI Al-Andina" },
+                  ].map((logo, index) => (
+                    <div key={index} className="relative group flex justify-center">
+                      <img
+                        src={logo.src}
+                        alt={logo.alt}
+                        className="h-16 w-auto grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110 cursor-pointer"
+                      />
+                      <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-slate-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg whitespace-nowrap z-50 pointer-events-none shadow-lg">
+                        {logo.alt}
+                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </motion.div>
           </div>
         </div>
       </section>
@@ -156,7 +184,7 @@ export default function Home() {
                 color: "bg-secondary/5",
               },
             ].map((pilar, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
                 whileHover={{ y: -10 }}
                 className="bg-white p-10 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300"
@@ -180,7 +208,7 @@ export default function Home() {
             <div className="flex-1">
               <h2 className="text-sm font-bold text-white uppercase tracking-[0.2em] mb-4">Kolaborasi Strategis</h2>
               <h3 className="text-4xl lg:text-5xl font-extrabold text-white mb-8">
-                MPMBI & Program Studi Magister Manajemen Universitas Nusa Putra
+                Sinergi dan Kolaborasi dengan Perguruan Tinggi
               </h3>
               <p className="text-lg text-slate-300 leading-relaxed mb-10">
                 Kerja sama dalam penguatan tridharma perguruan tinggi, meliputi pendidikan, penelitian, pengabdian masyarakat, dan pengembangan jejaring profesional lintas institusi.
