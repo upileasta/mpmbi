@@ -20,7 +20,7 @@ export default function KolaborasiPage() {
       
       <PageHero 
         title="Kolaborasi Strategis"
-        description="Sinergi antara MPMBI dan Program Studi Magister Manajemen Universitas Nusa Putra dalam penguatan Tridharma Perguruan Tinggi."
+        description="Sinergi antara MPMBI dan berbagai Perguruan Tinggi dalam penguatan Tridharma Perguruan Tinggi."
         imageUrl="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&q=80&w=1600"
       />
 
