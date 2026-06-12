@@ -25,10 +25,10 @@ export default function KontakPage() {
   return (
     <main className="min-h-screen bg-white">
       <Navbar />
-      
-      <PageHero 
-        title="Hubungi Kami" 
-        description="Buka ruang komunikasi untuk kolaborasi, riset, atau informasi program MPMBI." 
+
+      <PageHero
+        title="Hubungi Kami"
+        description="Buka ruang komunikasi untuk kolaborasi, riset, atau informasi program MPMBI."
         imageUrl="https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80&w=1600"
       />
 
@@ -42,30 +42,23 @@ export default function KontakPage() {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl font-bold text-primary mb-8">Informasi Kontak</h2>
-              <div className="space-y-8">
+              <div className="space-y-4">
                 {[
-                  { icon: <MapPin className="text-secondary" />, label: "Alamat", value: "[Alamat Sekretariat MPMBI]" },
-                  { icon: <Mail className="text-secondary" />, label: "Email", value: "info@mpmbi.or.id" },
-                  { icon: <Phone className="text-secondary" />, label: "WhatsApp", value: "[Nomor WhatsApp Admin]" },
-                  { icon: <Globe className="text-secondary" />, label: "Instagram", value: "@mpmbi_official" },
+                  { icon: <MapPin size={24} className="text-primary" />, label: "Alamat", value: "Grand Slipi Tower, level 42 Unit G-H Jl. S Parman Kav 22-24, RT. 01 RW. 04 Kel. Palmerah Kec. Palmerah Jakarta Barat 11480" },
+                  { icon: <Mail size={24} className="text-primary" />, label: "Email", value: "info@mpmbi.or.id" },
+                  { icon: <Phone size={24} className="text-primary" />, label: "WhatsApp", value: "+62 813-8099-3100" },
+                  { icon: <Globe size={24} className="text-primary" />, label: "Instagram", value: "@mpmbi_official" },
                 ].map((item, i) => (
-                  <div key={i} className="flex gap-6 items-start">
-                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 border border-slate-100">
+                  <div key={i} className="flex gap-5 items-start p-6 rounded-3xl bg-slate-50/80 border border-slate-100 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 hover:bg-white transition-all duration-300 group">
+                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shrink-0 border border-slate-100 shadow-sm group-hover:scale-110 group-hover:border-primary/20 transition-all duration-300">
                       {item.icon}
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{item.label}</p>
-                      <p className="text-lg font-semibold text-slate-700">{item.value}</p>
+                    <div className="flex-1 mt-1">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 group-hover:text-secondary transition-colors">{item.label}</p>
+                      <p className="text-[15px] font-semibold text-slate-700 leading-relaxed">{item.value}</p>
                     </div>
                   </div>
                 ))}
-              </div>
-
-              <div className="mt-16 p-8 bg-primary rounded-3xl text-white">
-                <h4 className="text-xl font-bold mb-4 italic text-secondary">Ayo Berkolaborasi!</h4>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Kami selalu terbuka untuk inisiatif baru yang dapat memperkuat ekosistem manajemen dan bisnis di Indonesia.
-                </p>
               </div>
             </motion.div>
 
