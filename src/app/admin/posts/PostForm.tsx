@@ -22,7 +22,7 @@ const CATEGORIES = [
 
 const TYPES = ["BLOG", "NEWS", "PUBLICATION"];
 
-interface PostData {
+export interface PostData {
   id?: string;
   title: string;
   slug: string;
@@ -99,9 +99,9 @@ export function PostForm({ initialData }: { initialData?: PostData }) {
 
     try {
       if (initialData?.id) {
-        await updatePost(initialData.id, formData as any);
+        await updatePost(initialData.id, formData as unknown as Parameters<typeof updatePost>[1]);
       } else {
-        await createPost(formData as any);
+        await createPost(formData as unknown as Parameters<typeof createPost>[0]);
       }
       router.push("/admin/posts");
       router.refresh();

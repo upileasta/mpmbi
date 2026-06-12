@@ -73,7 +73,7 @@ export async function submitRegistration(formData: FormData) {
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: (error as any).errors[0].message,
+        error: error.errors[0].message,
       };
     }
 

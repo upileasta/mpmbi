@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
-import { PostForm } from "../PostForm";
+import { PostForm, PostData } from "../PostForm";
 import { notFound } from "next/navigation";
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,7 +18,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-10">
-      <PostForm initialData={post as any} />
+      <PostForm initialData={post as unknown as PostData} />
     </div>
   );
 }
